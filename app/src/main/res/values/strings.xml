@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Merlin</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_settings_title">SETTINGS</string>
+    <string name="nav_about_title">ABOUT</string>
+    <string name="nav_donate_title">DONATE</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_time">Time</string>
+    <string name="nav_theme">Theme</string>
+    <string name="nav_contact">Contact</string>
+    <string name="nav_website">Visit Website</string>
+    <string name="nav_reddit">Read more from Reddit</string>
+    <string name="nav_donate_small">Humble</string>
+    <string name="nav_donate_medium">Thoughtful</string>
+    <string name="nav_donate_large">Generous</string>
+    <string name="nav_footer">Every child has the right to an education.\nAll proceeds will go towards ensuring that right.</string>
+    <string name="splash_screen_content_description">Image used for splash screen</string>
+    <string name="action_source">Source</string>
+    <string name="action_view_source">View Source</string>
+    <string name="action_share">Share</string>
+    <string name="pref_notification">notification_enabled</string>
+    <string name="pref_hour">hour_of_notification</string>
+    <string name="pref_minute">minute_of_notification</string>
+</resources>
