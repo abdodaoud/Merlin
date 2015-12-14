@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.design.widget.AppBarLayout
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -24,6 +25,7 @@ import com.anjlab.android.iab.v3.BillingProcessor
 import com.anjlab.android.iab.v3.TransactionDetails
 import com.dd.CircularProgressButton
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
+import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
@@ -57,6 +59,8 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
     var notificationOn: Boolean = false
     var hourOfDay: Int = 9
     var minute: Int = 0
+
+    var drawer: Drawer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -224,7 +228,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
     }
 
     private fun setupNavDrawer() {
-        DrawerBuilder()
+        drawer = DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .withTranslucentStatusBar(false)
@@ -237,7 +241,9 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
                         PrimaryDrawerItem().withName(R.string.nav_notifications)
                                 .withIcon(if (notificationOn) R.mipmap.nav_switch_on
                                 else R.mipmap.nav_switch_off),
-                        PrimaryDrawerItem().withName(R.string.nav_time).withIcon(R.mipmap.nav_time),
+                        PrimaryDrawerItem().withName(R.string.nav_time)
+                                .withIcon(if (notificationOn) R.mipmap.nav_time
+                                else R.mipmap.nav_time_off),
                         DividerDrawerItem(),
                         SecondaryDrawerItem().withName(R.string.nav_about_title),
                         PrimaryDrawerItem().withName(R.string.nav_contact)
@@ -259,8 +265,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
                         if (drawerItem != null) handleItemClick(position, drawerItem) else false
                     })
                 .withFooter(R.layout.nav_footer)
-                .withFooterDivider(false)
-                .build()
+                .withFooterDivider(false).build()
     }
 
     private fun handleItemClick(position: Int, drawerItem : IDrawerItem<*>): Boolean {
@@ -273,11 +278,24 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
             // notification
             2 -> {
                 if (drawerItem is Iconable<*>) {
+                    val clockItem = drawer?.adapter?.getItem(position+1)
                     if (notificationOn) {
-                        drawerItem.withIcon(getDrawable(R.mipmap.nav_switch_off))
+                        drawerItem.withIcon(ContextCompat.getDrawable(this, R.mipmap.nav_switch_off))
+                        clockItem?.withSelectable(false)
+                        clockItem?.withSetSelected(false)
+                        if (clockItem is Iconable<*>) {
+                            clockItem?.withIcon(ContextCompat.getDrawable(this, R.mipmap.nav_time_off))
+                            drawer?.updateItem(clockItem)
+                        }
+                        closeContextMenu()
                         notificationOn = false
                     } else {
-                        drawerItem.withIcon(getDrawable(R.mipmap.nav_switch_on))
+                        drawerItem.withIcon(ContextCompat.getDrawable(this, R.mipmap.nav_switch_on))
+                        clockItem?.withSelectable(true)
+                        if (clockItem is Iconable<*>) {
+                            clockItem?.withIcon(ContextCompat.getDrawable(this, R.mipmap.nav_time))
+                            drawer?.updateItem(clockItem)
+                        }
                         notificationOn = true
                         AlarmService(this).startAlarm()
                     }
@@ -292,6 +310,8 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
                     val tpd = TimePickerDialog.newInstance(this, hourOfDay, minute, false)
                     tpd.accentColor = R.color.colorPrimaryLight
                     tpd.show(fragmentManager, "AlarmTimeDialog")
+                } else {
+                    drawerItem.withSetSelected(false)
                 }
             }
             // contact
@@ -299,7 +319,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
                     Uri.fromParts("mailto", Constants.EMAIL, null)))
             // visit website
             7 -> CustomTabsIntent.Builder().setShowTitle(true)
-                    .setToolbarColor(getColor(R.color.colorPrimary))
+                    .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
                     .setStartAnimations(this, R.anim.slide_in_right,
                             R.anim.slide_out_left)
                     .setExitAnimations(this, android.R.anim.slide_in_left,
@@ -308,7 +328,7 @@ class MainActivity : AppCompatActivity(), ToolbarManager, TimePickerDialog.OnTim
                     .launchUrl(this, Uri.parse(Constants.WEBSITE))
             // read more from Reddit
             8 -> CustomTabsIntent.Builder().setShowTitle(true)
-                    .setToolbarColor(getColor(R.color.colorPrimary))
+                    .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
                     .setStartAnimations(this, R.anim.slide_in_right,
                             R.anim.slide_out_left)
                     .setExitAnimations(this, android.R.anim.slide_in_left,
